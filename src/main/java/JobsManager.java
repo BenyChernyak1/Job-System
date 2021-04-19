@@ -37,7 +37,7 @@ public class JobsManager {
                     .build();
 
             Trigger trigger;
-            if (periodicExecutionInHours > 1) {
+            if (periodicExecutionInHours > 0) {
                 trigger = TriggerBuilder.newTrigger()
                         .withIdentity(triggerName, triggerGroup)
                         .startNow()
