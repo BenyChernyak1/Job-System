@@ -31,33 +31,44 @@ public class JobsManager {
                     }
                 }
             }
-
-            JobDetail job = JobBuilder.newJob(jobClass)
-                    .withIdentity(jobName, jobGroup)
-                    .build();
-
-            Trigger trigger;
-            if (periodicExecutionInHours > 0) {
-                trigger = TriggerBuilder.newTrigger()
-                        .withIdentity(triggerName, triggerGroup)
-                        .startNow()
-                        .withSchedule(
-                                SimpleScheduleBuilder.simpleSchedule()
-                                        .withIntervalInHours(periodicExecutionInHours)
-                                        .repeatForever())
-                        .build();
-            } else {
-                trigger = TriggerBuilder.newTrigger()
-                        .withIdentity(triggerName, triggerGroup)
-                        .startNow()
-                        .withSchedule(
-                                SimpleScheduleBuilder.simpleSchedule())
-                        .build();
-            }
+            JobDetail job = getJobDetail(jobClass, jobName, jobGroup);
+            Trigger trigger = getTrigger(triggerName, triggerGroup, periodicExecutionInHours);
             scheduler.scheduleJob(job, trigger);
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
+    }
+
+    public Trigger getTrigger(String triggerName, String triggerGroup, int periodicExecutionInHours) {
+        Trigger trigger;
+        if (periodicExecutionInHours > 0) {
+            trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerName, triggerGroup)
+                    .startNow()
+                    .withSchedule(
+                            SimpleScheduleBuilder.simpleSchedule()
+                                    .withIntervalInHours(periodicExecutionInHours)
+                                    .repeatForever())
+                    .build();
+        } else {
+            trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerName, triggerGroup)
+                    .startNow()
+                    .withSchedule(
+                            SimpleScheduleBuilder.simpleSchedule())
+                    .build();
+        }
+        return trigger;
+    }
+
+    public JobDetail getJobDetail(Class<? extends BaseJob> jobClass, String jobName, String jobGroup) {
+        return JobBuilder.newJob(jobClass)
+                .withIdentity(jobName, jobGroup)
+                .build();
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     public void scheduleJob(Class<? extends BaseJob> jobClass, String jobName, String jobGroup,
